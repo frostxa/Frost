@@ -1,0 +1,1982 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frostxa Dev — Premium Roblox Scripts & Assets</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   CSS RESET & ROOT VARIABLES
+============================================= */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --ice:     #a8f0ff;
+  --cyan:    #00e5ff;
+  --gold:    #ffd700;
+  --gold2:   #ffaa00;
+  --pink:    #ff3cac;
+  --violet:  #784ba0;
+  --dark:    #060912;
+  --dark2:   #0d1225;
+  --dark3:   #111830;
+  --card:    #0a1020;
+  --border:  rgba(0,229,255,0.35);
+  --glow-c:  rgba(0,229,255,0.6);
+  --glow-g:  rgba(255,215,0,0.5);
+  --glow-p:  rgba(255,60,172,0.5);
+  --px: 'Press Start 2P', monospace;
+  --mono: 'Share Tech Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--mono);
+  background: var(--dark);
+  color: #cfe8ff;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* =============================================
+   CUSTOM CURSOR
+============================================= */
+#cursor {
+  position: fixed;
+  width: 12px; height: 12px;
+  background: var(--gold);
+  box-shadow: 0 0 12px var(--gold), 0 0 24px var(--gold2);
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%,-50%);
+  transition: width .15s, height .15s, background .15s;
+  image-rendering: pixelated;
+  clip-path: polygon(0 0,100% 0,100% 75%,75% 100%,0 100%);
+}
+#cursor.big { width:20px; height:20px; background:var(--cyan); box-shadow: 0 0 20px var(--cyan); }
+
+/* =============================================
+   SCANLINE OVERLAY
+============================================= */
+body::after {
+  content:'';
+  position: fixed; inset:0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* =============================================
+   PIXEL STARS CANVAS
+============================================= */
+#stars-canvas {
+  position: fixed; inset:0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* =============================================
+   NAVBAR
+============================================= */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 68px;
+  background: rgba(6,9,18,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 2px solid var(--border);
+  box-shadow: 0 2px 40px rgba(0,229,255,0.08);
+}
+
+.nav-logo {
+  font-family: var(--px);
+  font-size: 15px;
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan), 0 0 20px var(--cyan);
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo .snowflake {
+  display: inline-block;
+  animation: spin 8s linear infinite;
+  font-size: 18px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--px);
+  font-size: 9px;
+  color: #7fa8c8;
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  transition: all .25s;
+  position: relative;
+  letter-spacing: 1px;
+}
+
+.nav-links a::before {
+  content: '▶';
+  position: absolute;
+  left: 4px;
+  top: 50%; transform: translateY(-50%);
+  font-size: 6px;
+  opacity: 0;
+  color: var(--cyan);
+  transition: opacity .2s;
+}
+
+.nav-links a:hover {
+  color: var(--cyan);
+  border-color: var(--border);
+  background: rgba(0,229,255,0.06);
+  text-shadow: 0 0 8px var(--cyan);
+  padding-left: 20px;
+}
+
+.nav-links a:hover::before { opacity: 1; }
+
+.nav-badge {
+  font-family: var(--px);
+  font-size: 8px;
+  color: var(--dark);
+  background: var(--gold);
+  padding: 5px 12px;
+  border: 2px solid var(--gold);
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--glow-g);
+  transition: all .2s;
+  text-decoration: none;
+}
+
+.nav-badge:hover {
+  background: transparent;
+  color: var(--gold);
+  box-shadow: 0 0 24px var(--glow-g);
+}
+
+/* =============================================
+   HERO
+============================================= */
+.hero {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 24px 60px;
+  overflow: hidden;
+}
+
+/* Pixel art corner decorations */
+.corner {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-color: var(--cyan);
+  border-style: solid;
+  opacity: .5;
+}
+.corner-tl { top:20px; left:20px; border-width: 3px 0 0 3px; }
+.corner-tr { top:20px; right:20px; border-width: 3px 3px 0 0; }
+.corner-bl { bottom:20px; left:20px; border-width: 0 0 3px 3px; }
+.corner-br { bottom:20px; right:20px; border-width: 0 3px 3px 0; }
+
+/* Big glowing orb behind logo */
+.hero-orb {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,229,255,0.07) 0%, rgba(120,75,160,0.05) 50%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  animation: orbPulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes orbPulse {
+  0%,100% { transform: translate(-50%,-50%) scale(1); opacity:.6; }
+  50% { transform: translate(-50%,-50%) scale(1.1); opacity:1; }
+}
+
+/* Floating pixel art elements */
+.pixel-float {
+  position: absolute;
+  font-size: 28px;
+  animation: floatUp 6s ease-in-out infinite;
+  opacity: .55;
+  filter: drop-shadow(0 0 8px var(--cyan));
+}
+
+@keyframes floatUp {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-24px) rotate(10deg); }
+}
+
+.pf1  { top:14%; left:8%;   animation-delay:0s;   font-size:36px; }
+.pf2  { top:20%; right:9%;  animation-delay:1.2s; font-size:24px; }
+.pf3  { top:55%; left:5%;   animation-delay:2.4s; font-size:30px; }
+.pf4  { top:65%; right:6%;  animation-delay:0.6s; font-size:40px; }
+.pf5  { top:80%; left:20%;  animation-delay:1.8s; font-size:22px; }
+.pf6  { top:30%; left:48%;  animation-delay:3s;   font-size:18px; opacity:.3; }
+
+/* Hero brand text */
+.hero-eyebrow {
+  font-family: var(--px);
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 6px;
+  margin-bottom: 24px;
+  text-shadow: 0 0 10px var(--gold);
+  animation: fadeSlideDown .8s ease both;
+}
+
+@keyframes fadeSlideDown {
+  from { opacity:0; transform:translateY(-20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.hero-logo-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 32px;
+  animation: fadeSlideDown .8s .15s ease both;
+}
+
+.hero-title {
+  font-family: var(--px);
+  font-size: clamp(36px, 7vw, 80px);
+  line-height: 1.15;
+  color: transparent;
+  background: linear-gradient(135deg, var(--ice) 0%, var(--cyan) 40%, var(--violet) 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 18px rgba(0,229,255,0.6));
+  letter-spacing: 4px;
+}
+
+/* Glitch layers */
+.hero-title::before,
+.hero-title::after {
+  content: 'FROSTXA DEV';
+  position: absolute;
+  left: 0; top: 0; width: 100%;
+  font-family: var(--px);
+  font-size: clamp(36px, 7vw, 80px);
+  letter-spacing: 4px;
+}
+
+.hero-title::before {
+  color: var(--pink);
+  clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+  animation: glitch1 3s infinite;
+  opacity: .5;
+}
+
+.hero-title::after {
+  color: var(--cyan);
+  clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+  animation: glitch2 3s infinite;
+  opacity: .4;
+}
+
+@keyframes glitch1 {
+  0%,94%,100% { transform: translate(0); }
+  95% { transform: translate(-4px, 2px); }
+  97% { transform: translate(4px, -2px); }
+}
+
+@keyframes glitch2 {
+  0%,91%,100% { transform: translate(0); }
+  92% { transform: translate(4px, 2px); }
+  94% { transform: translate(-4px, 0); }
+}
+
+.hero-sub {
+  font-size: 15px;
+  color: #7ab8d0;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+  animation: fadeSlideDown .8s .3s ease both;
+}
+
+.hero-tags {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 44px;
+  animation: fadeSlideDown .8s .45s ease both;
+}
+
+.tag {
+  font-family: var(--px);
+  font-size: 8px;
+  color: var(--gold);
+  border: 1px solid rgba(255,215,0,.4);
+  padding: 5px 12px;
+  background: rgba(255,215,0,.06);
+  letter-spacing: 1px;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeSlideDown .8s .6s ease both;
+}
+
+/* CTA BUTTONS */
+.btn-primary {
+  font-family: var(--px);
+  font-size: 10px;
+  color: var(--dark);
+  background: linear-gradient(90deg, var(--cyan), var(--ice));
+  padding: 16px 36px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  letter-spacing: 1px;
+  position: relative;
+  box-shadow: 0 0 20px var(--glow-c), inset 0 1px 0 rgba(255,255,255,.3);
+  transition: all .2s;
+  clip-path: polygon(8px 0%,100% 0%,100% calc(100% - 8px),calc(100% - 8px) 100%,0% 100%,0% 8px);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 40px var(--glow-c);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  font-family: var(--px);
+  font-size: 10px;
+  color: var(--gold);
+  background: transparent;
+  padding: 14px 34px;
+  border: 2px solid var(--gold);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  letter-spacing: 1px;
+  box-shadow: 0 0 12px var(--glow-g), inset 0 0 12px rgba(255,215,0,.05);
+  transition: all .2s;
+  clip-path: polygon(0% 8px,8px 0%,100% 0%,100% calc(100% - 8px),calc(100% - 8px) 100%,0% 100%);
+}
+
+.btn-outline:hover {
+  background: rgba(255,215,0,.08);
+  box-shadow: 0 0 28px var(--glow-g);
+  transform: translateY(-2px);
+}
+
+/* Scroll indicator */
+.scroll-ind {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  animation: fadeSlideDown 1s 1.2s ease both;
+}
+
+.scroll-ind span {
+  font-family: var(--px);
+  font-size: 7px;
+  color: #3a6680;
+  letter-spacing: 3px;
+}
+
+.scroll-arrow {
+  width: 16px; height: 16px;
+  border-right: 2px solid var(--cyan);
+  border-bottom: 2px solid var(--cyan);
+  transform: rotate(45deg);
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,100% { transform: rotate(45deg) translate(0,0); }
+  50% { transform: rotate(45deg) translate(4px,4px); }
+}
+
+/* =============================================
+   DIVIDER
+============================================= */
+.px-divider {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 48px;
+  margin: 0;
+}
+
+.px-divider::before,
+.px-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.px-divider span {
+  font-family: var(--px);
+  font-size: 8px;
+  color: var(--cyan);
+  white-space: nowrap;
+  opacity: .7;
+}
+
+/* =============================================
+   MARQUEE TICKER
+============================================= */
+.ticker-wrap {
+  position: relative;
+  z-index: 10;
+  background: rgba(0,229,255,0.06);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+  overflow: hidden;
+}
+
+.ticker {
+  display: flex;
+  gap: 0;
+  animation: ticker 28s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  font-family: var(--px);
+  font-size: 9px;
+  color: var(--cyan);
+  padding: 0 40px;
+  opacity: .8;
+}
+
+.ticker-item span { color: var(--gold); margin-right: 8px; }
+
+/* =============================================
+   SECTION COMMONS
+============================================= */
+section {
+  position: relative;
+  z-index: 10;
+}
+
+.section-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 100px 48px;
+}
+
+.section-header {
+  margin-bottom: 64px;
+  position: relative;
+}
+
+.section-label {
+  font-family: var(--px);
+  font-size: 9px;
+  color: var(--pink);
+  letter-spacing: 5px;
+  margin-bottom: 14px;
+  opacity: .9;
+}
+
+.section-title {
+  font-family: var(--px);
+  font-size: clamp(22px, 4vw, 38px);
+  color: var(--ice);
+  line-height: 1.4;
+  text-shadow: 0 0 20px rgba(168,240,255,0.4);
+}
+
+.section-title em {
+  font-style: normal;
+  color: var(--gold);
+  text-shadow: 0 0 16px var(--glow-g);
+}
+
+.section-line {
+  margin-top: 20px;
+  width: 80px; height: 3px;
+  background: linear-gradient(90deg, var(--cyan), transparent);
+  position: relative;
+}
+
+.section-line::after {
+  content: '■';
+  position: absolute;
+  right: 0; top: -7px;
+  font-size: 8px;
+  color: var(--cyan);
+}
+
+/* =============================================
+   FEATURED / MARQUEE CARDS SHOWCASE
+============================================= */
+.showcase-bg {
+  background: linear-gradient(180deg, var(--dark) 0%, var(--dark2) 50%, var(--dark) 100%);
+  padding: 80px 0;
+}
+
+/* =============================================
+   PRODUCT CARDS
+============================================= */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.p-card {
+  background: var(--card);
+  border: 1px solid rgba(0,229,255,0.18);
+  position: relative;
+  overflow: hidden;
+  transition: border-color .3s, box-shadow .3s, transform .3s;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+}
+
+.p-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,229,255,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Animated border glow */
+.p-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: conic-gradient(from var(--angle, 0deg), transparent 70%, var(--cyan) 80%, transparent 90%);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity .3s;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+}
+
+.p-card:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 30px rgba(0,229,255,0.18), 0 20px 60px rgba(0,0,0,0.6);
+  transform: translateY(-6px);
+}
+
+.p-card:hover::after { opacity: 1; }
+
+/* Card thumbnail */
+.p-thumb {
+  width: 100%;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Each thumb has a unique gradient */
+.thumb-fish   { background: linear-gradient(135deg, #001a2e 0%, #003d5c 50%, #001a2e 100%); }
+.thumb-map    { background: linear-gradient(135deg, #1a1a00 0%, #3d3000 50%, #1a1a00 100%); }
+.thumb-combat { background: linear-gradient(135deg, #1a0010 0%, #3d0025 50%, #1a0010 100%); }
+.thumb-eco    { background: linear-gradient(135deg, #001a00 0%, #003300 50%, #001a00 100%); }
+.thumb-build  { background: linear-gradient(135deg, #0d0d1a 0%, #1a1a3d 50%, #0d0d1a 100%); }
+.thumb-quest  { background: linear-gradient(135deg, #1a0a00 0%, #3d1a00 50%, #1a0a00 100%); }
+
+/* Pixel art grid inside thumb */
+.p-thumb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.p-thumb-icon {
+  font-size: 72px;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 16px currentColor);
+  animation: iconFloat 4s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.p-thumb-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  font-family: var(--px);
+  font-size: 8px;
+  padding: 5px 10px;
+  background: var(--dark);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  text-shadow: 0 0 8px var(--gold);
+  z-index: 3;
+}
+
+.p-thumb-badge.hot {
+  border-color: var(--pink);
+  color: var(--pink);
+  text-shadow: 0 0 8px var(--pink);
+  animation: badgePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%,100% { box-shadow: 0 0 4px var(--glow-p); }
+  50% { box-shadow: 0 0 16px var(--glow-p); }
+}
+
+.p-thumb-badge.new {
+  border-color: #00ff88;
+  color: #00ff88;
+  text-shadow: 0 0 8px #00ff88;
+}
+
+/* Card body */
+.p-body {
+  padding: 24px;
+}
+
+.p-cat {
+  font-family: var(--px);
+  font-size: 8px;
+  color: var(--cyan);
+  opacity: .7;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.p-name {
+  font-family: var(--px);
+  font-size: 14px;
+  color: var(--ice);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.p-desc {
+  font-size: 13px;
+  color: #5a7a90;
+  margin-bottom: 18px;
+  line-height: 1.7;
+}
+
+.p-features {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px dashed rgba(0,229,255,0.15);
+}
+
+.p-feat-item {
+  font-size: 11px;
+  color: #4a7a8a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.p-feat-item::before {
+  content: '▶';
+  font-size: 7px;
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+
+.p-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.p-price-block {}
+
+.p-price-label {
+  font-size: 10px;
+  color: #3a5a6a;
+  margin-bottom: 2px;
+}
+
+.p-price {
+  font-family: var(--px);
+  font-size: 18px;
+  color: var(--gold);
+  text-shadow: 0 0 10px var(--glow-g);
+}
+
+.p-buy-btn {
+  font-family: var(--px);
+  font-size: 9px;
+  padding: 12px 18px;
+  background: transparent;
+  color: var(--cyan);
+  border: 1.5px solid var(--cyan);
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: 1px;
+  clip-path: polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px);
+  white-space: nowrap;
+}
+
+.p-buy-btn:hover {
+  background: var(--cyan);
+  color: var(--dark);
+  box-shadow: 0 0 20px var(--glow-c);
+}
+
+/* =============================================
+   PORTFOLIO / SHOWCASE
+============================================= */
+.portfolio-section {
+  background: var(--dark2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.port-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+@media (max-width: 900px) {
+  .port-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 580px) {
+  .port-grid { grid-template-columns: 1fr; }
+}
+
+.port-item {
+  position: relative;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--dark3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.port-item-bg {
+  position: absolute;
+  inset: 0;
+  transition: transform .5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+}
+
+.port-bg1 { background: linear-gradient(135deg,#00131f,#003040); }
+.port-bg2 { background: linear-gradient(135deg,#1a0d00,#3a2000); }
+.port-bg3 { background: linear-gradient(135deg,#0d001a,#25004a); }
+.port-bg4 { background: linear-gradient(135deg,#001a0d,#003d25); }
+.port-bg5 { background: linear-gradient(135deg,#1a001a,#3a003a); }
+.port-bg6 { background: linear-gradient(135deg,#001020,#002040); }
+
+.port-item:hover .port-item-bg { transform: scale(1.08); }
+
+.port-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(6,9,18,0.75);
+  opacity: 0;
+  transition: opacity .3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+}
+
+.port-item:hover .port-overlay { opacity: 1; }
+
+.port-overlay-title {
+  font-family: var(--px);
+  font-size: 12px;
+  color: var(--ice);
+  text-shadow: 0 0 10px var(--cyan);
+}
+
+.port-overlay-desc {
+  font-size: 12px;
+  color: #5a8a9a;
+}
+
+.port-overlay-tag {
+  font-family: var(--px);
+  font-size: 8px;
+  color: var(--gold);
+  border: 1px solid rgba(255,215,0,.4);
+  padding: 3px 8px;
+  margin-top: 4px;
+}
+
+/* pixel frame on each port item */
+.port-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(0,229,255,0.12);
+  z-index: 2;
+  pointer-events: none;
+  transition: border-color .3s;
+}
+
+.port-item:hover::before { border-color: var(--cyan); }
+
+/* =============================================
+   STATS ROW
+============================================= */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-top: 2px;
+}
+
+@media (max-width: 700px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-cell {
+  background: var(--dark3);
+  padding: 40px 24px;
+  text-align: center;
+  border: 1px solid rgba(0,229,255,0.08);
+  position: relative;
+  overflow: hidden;
+  transition: border-color .3s;
+}
+
+.stat-cell:hover { border-color: var(--border); }
+
+.stat-cell::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  transform: scaleX(0);
+  transition: transform .4s;
+}
+
+.stat-cell:hover::before { transform: scaleX(1); }
+
+.stat-num {
+  font-family: var(--px);
+  font-size: clamp(28px, 4vw, 48px);
+  color: var(--gold);
+  text-shadow: 0 0 16px var(--glow-g);
+  margin-bottom: 10px;
+  display: block;
+  line-height: 1;
+}
+
+.stat-lbl {
+  font-family: var(--px);
+  font-size: 9px;
+  color: #3a5a70;
+  letter-spacing: 2px;
+}
+
+/* =============================================
+   TESTIMONIALS
+============================================= */
+.testi-section {
+  background: var(--dark);
+}
+
+.testi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.testi-card {
+  background: var(--dark3);
+  border: 1px solid rgba(0,229,255,0.1);
+  padding: 28px;
+  position: relative;
+  transition: border-color .3s, box-shadow .3s;
+}
+
+.testi-card:hover {
+  border-color: rgba(255,215,0,0.3);
+  box-shadow: 0 0 20px rgba(255,215,0,0.06);
+}
+
+.testi-quote {
+  font-size: 28px;
+  color: var(--gold);
+  opacity: .4;
+  margin-bottom: 12px;
+  font-family: serif;
+  line-height: 1;
+}
+
+.testi-text {
+  font-size: 13px;
+  color: #5a8090;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.testi-stars {
+  margin-bottom: 16px;
+  color: var(--gold);
+  font-size: 12px;
+  text-shadow: 0 0 6px var(--gold);
+}
+
+.testi-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(0,229,255,0.1);
+}
+
+.testi-avatar {
+  width: 40px; height: 40px;
+  background: var(--dark2);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.testi-name {
+  font-family: var(--px);
+  font-size: 10px;
+  color: var(--ice);
+  margin-bottom: 3px;
+}
+
+.testi-role {
+  font-size: 11px;
+  color: #3a5a6a;
+}
+
+/* =============================================
+   PRICING
+============================================= */
+.pricing-section { background: var(--dark2); }
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .pricing-grid { grid-template-columns: 1fr; }
+}
+
+.price-card {
+  background: var(--card);
+  border: 1px solid rgba(0,229,255,0.12);
+  padding: 36px 28px;
+  position: relative;
+  transition: all .3s;
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+}
+
+.price-card.featured {
+  border-color: var(--gold);
+  background: linear-gradient(160deg, rgba(255,215,0,0.04) 0%, var(--card) 100%);
+  box-shadow: 0 0 30px rgba(255,215,0,0.12);
+  transform: scale(1.02);
+}
+
+.price-card:hover:not(.featured) {
+  border-color: var(--border);
+  transform: translateY(-4px);
+}
+
+.price-featured-badge {
+  position: absolute;
+  top: -1px; right: 28px;
+  font-family: var(--px);
+  font-size: 8px;
+  background: var(--gold);
+  color: var(--dark);
+  padding: 5px 14px;
+}
+
+.price-plan {
+  font-family: var(--px);
+  font-size: 11px;
+  color: var(--cyan);
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.price-card.featured .price-plan { color: var(--gold); }
+
+.price-amount {
+  font-family: var(--px);
+  font-size: 32px;
+  color: var(--ice);
+  margin-bottom: 4px;
+  text-shadow: 0 0 12px rgba(168,240,255,0.3);
+}
+
+.price-period {
+  font-size: 12px;
+  color: #3a5a6a;
+  margin-bottom: 28px;
+}
+
+.price-items {
+  list-style: none;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.price-items li {
+  font-size: 12px;
+  color: #4a7a90;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.price-items li::before {
+  content: '✓';
+  color: #00ff88;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.price-items li.off {
+  color: #2a3a44;
+}
+
+.price-items li.off::before { content: '✕'; color: #2a3a44; }
+
+.price-btn {
+  width: 100%;
+  font-family: var(--px);
+  font-size: 10px;
+  padding: 14px;
+  background: transparent;
+  color: var(--cyan);
+  border: 1.5px solid var(--cyan);
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: 1px;
+}
+
+.price-card.featured .price-btn {
+  background: var(--gold);
+  color: var(--dark);
+  border-color: var(--gold);
+  box-shadow: 0 0 20px var(--glow-g);
+}
+
+.price-btn:hover {
+  background: var(--cyan);
+  color: var(--dark);
+  box-shadow: 0 0 20px var(--glow-c);
+}
+
+.price-card.featured .price-btn:hover {
+  box-shadow: 0 0 30px var(--glow-g);
+  filter: brightness(1.1);
+}
+
+/* =============================================
+   CONTACT / CTA SECTION
+============================================= */
+.cta-section {
+  background: var(--dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, rgba(0,229,255,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.cta-inner {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.cta-title {
+  font-family: var(--px);
+  font-size: clamp(20px, 4vw, 36px);
+  color: var(--ice);
+  line-height: 1.5;
+  margin-bottom: 16px;
+  text-shadow: 0 0 20px rgba(168,240,255,0.3);
+}
+
+.cta-sub {
+  font-size: 14px;
+  color: #3a6a7a;
+  margin-bottom: 40px;
+  line-height: 1.8;
+}
+
+.cta-socials {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+
+.social-btn {
+  font-family: var(--px);
+  font-size: 9px;
+  color: var(--ice);
+  background: var(--dark3);
+  border: 1px solid var(--border);
+  padding: 14px 24px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all .2s;
+  letter-spacing: 1px;
+}
+
+.social-btn:hover {
+  border-color: var(--cyan);
+  background: rgba(0,229,255,0.06);
+  box-shadow: 0 0 16px var(--glow-c);
+  color: var(--cyan);
+}
+
+.social-btn.discord:hover { border-color: #5865f2; box-shadow: 0 0 16px rgba(88,101,242,0.4); color: #5865f2; }
+
+/* =============================================
+   FOOTER
+============================================= */
+footer {
+  position: relative;
+  z-index: 10;
+  background: var(--dark);
+  border-top: 1px solid var(--border);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-logo {
+  font-family: var(--px);
+  font-size: 12px;
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+}
+
+.footer-copy {
+  font-size: 11px;
+  color: #2a4a5a;
+  text-align: center;
+}
+
+.footer-links-bottom {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-links-bottom a {
+  font-size: 11px;
+  color: #2a4a5a;
+  text-decoration: none;
+  transition: color .2s;
+}
+
+.footer-links-bottom a:hover { color: var(--cyan); }
+
+/* =============================================
+   PIXEL ART SPRITE (CSS-drawn snowflake)
+============================================= */
+.hero-pixel-art {
+  display: grid;
+  grid-template-columns: repeat(7, 10px);
+  grid-template-rows: repeat(7, 10px);
+  gap: 2px;
+  margin: 24px auto;
+  opacity: .35;
+}
+
+.px { width:10px; height:10px; }
+.c  { background: var(--cyan); box-shadow: 0 0 4px var(--cyan); }
+.g  { background: var(--gold); box-shadow: 0 0 4px var(--gold); }
+.e  { background: transparent; }
+
+/* =============================================
+   UTILITY + ANIMATION
+============================================= */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger children */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+
+.reveal-stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay:.05s; }
+.reveal-stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay:.12s; }
+.reveal-stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay:.19s; }
+.reveal-stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay:.26s; }
+.reveal-stagger.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay:.33s; }
+.reveal-stagger.visible > *:nth-child(6) { opacity:1; transform:none; transition-delay:.40s; }
+
+/* =============================================
+   RESPONSIVE
+============================================= */
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .section-wrap { padding: 60px 20px; }
+  .products-grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; align-items: center; text-align: center; }
+}
+
+/* Typing cursor blink */
+.blink::after {
+  content: '▌';
+  animation: blink .8s step-end infinite;
+  color: var(--cyan);
+}
+
+@keyframes blink {
+  0%,100% { opacity:1; } 50% { opacity:0; }
+}
+
+/* Notification toast for buy button */
+.toast {
+  position: fixed;
+  bottom: 32px; right: 32px;
+  background: var(--dark3);
+  border: 1px solid var(--gold);
+  padding: 16px 24px;
+  font-family: var(--px);
+  font-size: 9px;
+  color: var(--gold);
+  box-shadow: 0 0 20px var(--glow-g);
+  z-index: 9999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all .4s cubic-bezier(.34,1.56,.64,1);
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor"></div>
+
+<!-- CANVAS STARS -->
+<canvas id="stars-canvas"></canvas>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast">📨 Menghubungi Discord...</div>
+
+<!-- ===================== NAVBAR ===================== -->
+<nav>
+  <div class="nav-logo">
+    <span class="snowflake">❄</span> FROSTXA DEV
+  </div>
+  <ul class="nav-links">
+    <li><a href="#home">HOME</a></li>
+    <li><a href="#products">PRODUK</a></li>
+    <li><a href="#portfolio">PORTFOLIO</a></li>
+    <li><a href="#pricing">HARGA</a></li>
+    <li><a href="#contact">KONTAK</a></li>
+  </ul>
+  <a href="#contact" class="nav-badge">✦ BELI SEKARANG</a>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="home">
+  <div class="hero-orb"></div>
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <!-- floating pixel elements -->
+  <div class="pixel-float pf1">🎣</div>
+  <div class="pixel-float pf2">⚔️</div>
+  <div class="pixel-float pf3">🗺️</div>
+  <div class="pixel-float pf4">💎</div>
+  <div class="pixel-float pf5">🏆</div>
+  <div class="pixel-float pf6">⭐</div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">✦ PREMIUM ROBLOX DEVELOPER ✦</p>
+
+    <!-- CSS pixel art snowflake -->
+    <div class="hero-pixel-art">
+      <div class="px e"></div><div class="px e"></div><div class="px e"></div><div class="px c"></div><div class="px e"></div><div class="px e"></div><div class="px e"></div>
+      <div class="px e"></div><div class="px g"></div><div class="px e"></div><div class="px c"></div><div class="px e"></div><div class="px g"></div><div class="px e"></div>
+      <div class="px e"></div><div class="px e"></div><div class="px c"></div><div class="px c"></div><div class="px c"></div><div class="px e"></div><div class="px e"></div>
+      <div class="px c"></div><div class="px c"></div><div class="px c"></div><div class="px g"></div><div class="px c"></div><div class="px c"></div><div class="px c"></div>
+      <div class="px e"></div><div class="px e"></div><div class="px c"></div><div class="px c"></div><div class="px c"></div><div class="px e"></div><div class="px e"></div>
+      <div class="px e"></div><div class="px g"></div><div class="px e"></div><div class="px c"></div><div class="px e"></div><div class="px g"></div><div class="px e"></div>
+      <div class="px e"></div><div class="px e"></div><div class="px e"></div><div class="px c"></div><div class="px e"></div><div class="px e"></div><div class="px e"></div>
+    </div>
+
+    <div class="hero-logo-wrap">
+      <h1 class="hero-title">FROSTXA DEV</h1>
+    </div>
+
+    <p class="hero-sub">Scripts &amp; Assets Roblox Berkualitas Premium</p>
+
+    <div class="hero-tags">
+      <span class="tag">⚡ LUASCRIPT</span>
+      <span class="tag">🗺️ MAP ASSETS</span>
+      <span class="tag">🎮 GAME SYSTEM</span>
+      <span class="tag">💎 PREMIUM ONLY</span>
+    </div>
+
+    <div class="hero-cta">
+      <a href="#products" class="btn-primary">▶ LIHAT PRODUK</a>
+      <a href="#contact" class="btn-outline">📨 HUBUNGI KAMI</a>
+    </div>
+  </div>
+
+  <div class="scroll-ind">
+    <span>SCROLL</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ===================== TICKER ===================== -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item"><span>⚡</span>FISHING FORGER SCRIPT</span>
+    <span class="ticker-item"><span>✦</span>RPG MAP ASSETS PACK</span>
+    <span class="ticker-item"><span>⚡</span>COMBAT SYSTEM PRO</span>
+    <span class="ticker-item"><span>✦</span>ECONOMY SYSTEM</span>
+    <span class="ticker-item"><span>⚡</span>BUILDING SYSTEM</span>
+    <span class="ticker-item"><span>✦</span>QUEST & MISSION PACK</span>
+    <span class="ticker-item"><span>⚡</span>UPDATE GRATIS SELAMANYA</span>
+    <span class="ticker-item"><span>✦</span>SUPPORT 24 JAM</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item"><span>⚡</span>FISHING FORGER SCRIPT</span>
+    <span class="ticker-item"><span>✦</span>RPG MAP ASSETS PACK</span>
+    <span class="ticker-item"><span>⚡</span>COMBAT SYSTEM PRO</span>
+    <span class="ticker-item"><span>✦</span>ECONOMY SYSTEM</span>
+    <span class="ticker-item"><span>⚡</span>BUILDING SYSTEM</span>
+    <span class="ticker-item"><span>✦</span>QUEST & MISSION PACK</span>
+    <span class="ticker-item"><span>⚡</span>UPDATE GRATIS SELAMANYA</span>
+    <span class="ticker-item"><span>✦</span>SUPPORT 24 JAM</span>
+  </div>
+</div>
+
+<!-- ===================== PRODUCTS ===================== -->
+<section id="products">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <p class="section-label">// KOLEKSI SCRIPT & ASSET</p>
+      <h2 class="section-title">PRODUK <em>UNGGULAN</em></h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="products-grid reveal-stagger">
+
+      <!-- Card 1 -->
+      <div class="p-card">
+        <div class="p-thumb thumb-fish">
+          <div class="p-thumb-icon" style="color:#00e5ff">🎣</div>
+          <div class="p-thumb-badge hot">🔥 BEST SELLER</div>
+        </div>
+        <div class="p-body">
+          <p class="p-cat">SCRIPT // GAME SYSTEM</p>
+          <h3 class="p-name">Fishing Forger Script</h3>
+          <p class="p-desc">Sistem memancing lengkap dengan XP, inventory, leaderboard global, dan 50+ jenis ikan langka.</p>
+          <div class="p-features">
+            <div class="p-feat-item">50+ Jenis Ikan dengan rarity tier</div>
+            <div class="p-feat-item">Sistem XP & Level-up otomatis</div>
+            <div class="p-feat-item">Global Leaderboard real-time</div>
+            <div class="p-feat-item">Dokumentasi & source code penuh</div>
+          </div>
+          <div class="p-footer">
+            <div class="p-price-block">
+              <p class="p-price-label">HARGA</p>
+              <p class="p-price">Rp 150K</p>
+            </div>
+            <button class="p-buy-btn" onclick="showToast()">BELI ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-card">
+        <div class="p-thumb thumb-map">
+          <div class="p-thumb-icon" style="color:#ffd700">🗺️</div>
+          <div class="p-thumb-badge">⭐ POPULER</div>
+        </div>
+        <div class="p-body">
+          <p class="p-cat">ASSET // MAP PACK</p>
+          <h3 class="p-name">RPG Map Assets Pack</h3>
+          <p class="p-desc">200+ model pixel art bertekstur tinggi untuk game RPG: dungeon, town, alam, dan kastil.</p>
+          <div class="p-features">
+            <div class="p-feat-item">200+ Model siap pakai</div>
+            <div class="p-feat-item">Terrain &amp; water system</div>
+            <div class="p-feat-item">Optimized LOD rendering</div>
+            <div class="p-feat-item">Spawn &amp; zone manager</div>
+          </div>
+          <div class="p-footer">
+            <div class="p-price-block">
+              <p class="p-price-label">HARGA</p>
+              <p class="p-price">Rp 200K</p>
+            </div>
+            <button class="p-buy-btn" onclick="showToast()">BELI ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-card">
+        <div class="p-thumb thumb-combat">
+          <div class="p-thumb-icon" style="color:#ff3cac">⚔️</div>
+          <div class="p-thumb-badge new">✦ NEW</div>
+        </div>
+        <div class="p-body">
+          <p class="p-cat">SCRIPT // COMBAT</p>
+          <h3 class="p-name">Combat System Pro</h3>
+          <p class="p-desc">Sistem pertarungan advanced: combo chain, 30+ skill, hitbox presisi, dan visual effect kelas AAA.</p>
+          <div class="p-features">
+            <div class="p-feat-item">30+ Skill dengan animasi custom</div>
+            <div class="p-feat-item">Combo chain &amp; counter system</div>
+            <div class="p-feat-item">Hitbox &amp; hurtbox pixel-perfect</div>
+            <div class="p-feat-item">Server-sided &amp; anti-cheat ready</div>
+          </div>
+          <div class="p-footer">
+            <div class="p-price-block">
+              <p class="p-price-label">HARGA</p>
+              <p class="p-price">Rp 250K</p>
+            </div>
+            <button class="p-buy-btn" onclick="showToast()">BELI ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="p-card">
+        <div class="p-thumb thumb-eco">
+          <div class="p-thumb-icon" style="color:#00ff88">💰</div>
+          <div class="p-thumb-badge">⭐ POPULER</div>
+        </div>
+        <div class="p-body">
+          <p class="p-cat">SCRIPT // ECONOMY</p>
+          <h3 class="p-name">Economy System</h3>
+          <p class="p-desc">Sistem ekonomi in-game komplet: bank, toko, trading peer-to-peer, pajak dinamis, dan double currency.</p>
+          <div class="p-features">
+            <div class="p-feat-item">Dual currency (coin &amp; premium)</div>
+            <div class="p-feat-item">Player trading system</div>
+            <div class="p-feat-item">Dynamic tax &amp; market system</div>
+            <div class="p-feat-item">DataStore v2 integration</div>
+          </div>
+          <div class="p-footer">
+            <div class="p-price-block">
+              <p class="p-price-label">HARGA</p>
+              <p class="p-price">Rp 180K</p>
+            </div>
+            <button class="p-buy-btn" onclick="showToast()">BELI ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="p-card">
+        <div class="p-thumb thumb-build">
+          <div class="p-thumb-icon" style="color:#a8f0ff">🏰</div>
+          <div class="p-thumb-badge">💎 PREMIUM</div>
+        </div>
+        <div class="p-body">
+          <p class="p-cat">SCRIPT // BUILDING</p>
+          <h3 class="p-name">Building System</h3>
+          <p class="p-desc">Sandbox builder dengan grid snap, rotasi bebas, save/load per player, dan plot management lengkap.</p>
+          <div class="p-features">
+            <div class="p-feat-item">Grid &amp; free placement mode</div>
+            <div class="p-feat-item">Save/Load per-player cloud</div>
+            <div class="p-feat-item">Blueprint &amp; sharing system</div>
+            <div class="p-feat-item">Collision &amp; overlap check</div>
+          </div>
+          <div class="p-footer">
+            <div class="p-price-block">
+              <p class="p-price-label">HARGA</p>
+              <p class="p-price">Rp 220K</p>
+            </div>
+            <button class="p-buy-btn" onclick="showToast()">BELI ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="p-card">
+        <div class="p-thumb thumb-quest">
+          <div class="p-thumb-icon" style="color:#ffaa00">📜</div>
+          <div class="p-thumb-badge hot">🔥 TERLARIS</div>
+        </div>
+        <div class="p-body">
+          <p class="p-cat">SCRIPT // QUEST SYSTEM</p>
+          <h3 class="p-name">Quest & Mission Pack</h3>
+          <p class="p-desc">Sistem quest modular dengan 100+ template siap pakai, tracking otomatis, dan reward UI premium.</p>
+          <div class="p-features">
+            <div class="p-feat-item">100+ Quest template siap pakai</div>
+            <div class="p-feat-item">Chain quest &amp; branching story</div>
+            <div class="p-feat-item">Auto-track &amp; compass system</div>
+            <div class="p-feat-item">Reward &amp; achievement UI</div>
+          </div>
+          <div class="p-footer">
+            <div class="p-price-block">
+              <p class="p-price-label">HARGA</p>
+              <p class="p-price">Rp 190K</p>
+            </div>
+            <button class="p-buy-btn" onclick="showToast()">BELI ▶</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /products-grid -->
+  </div>
+</section>
+
+<!-- ===================== PORTFOLIO ===================== -->
+<section class="portfolio-section" id="portfolio">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <p class="section-label">// KARYA TERPILIH</p>
+      <h2 class="section-title">PORTFOLIO <em>KAMI</em></h2>
+      <div class="section-line"></div>
+    </div>
+  </div>
+
+  <div class="port-grid reveal-stagger">
+    <div class="port-item">
+      <div class="port-item-bg port-bg1">🎣</div>
+      <div class="port-overlay">
+        <p class="port-overlay-title">OCEAN FISHER</p>
+        <p class="port-overlay-desc">Game memancing open-world dengan 80+ spesies ikan dan turnamen mingguan.</p>
+        <span class="port-overlay-tag">10K+ VISITS</span>
+      </div>
+    </div>
+    <div class="port-item">
+      <div class="port-item-bg port-bg2">⚔️</div>
+      <div class="port-overlay">
+        <p class="port-overlay-title">PIXEL QUEST RPG</p>
+        <p class="port-overlay-desc">RPG penuh cerita dengan 50+ chapter dan sistem combat yang dalam.</p>
+        <span class="port-overlay-tag">25K+ VISITS</span>
+      </div>
+    </div>
+    <div class="port-item">
+      <div class="port-item-bg port-bg3">🏙️</div>
+      <div class="port-overlay">
+        <p class="port-overlay-title">FROST CITY</p>
+        <p class="port-overlay-desc">City builder dengan ekonomi dinamis dan event musiman.</p>
+        <span class="port-overlay-tag">8K+ VISITS</span>
+      </div>
+    </div>
+    <div class="port-item">
+      <div class="port-item-bg port-bg4">🌲</div>
+      <div class="port-overlay">
+        <p class="port-overlay-title">SURVIVAL WILDS</p>
+        <p class="port-overlay-desc">Survival game dengan crafting, base building, dan hari/malam cycle.</p>
+        <span class="port-overlay-tag">15K+ VISITS</span>
+      </div>
+    </div>
+    <div class="port-item">
+      <div class="port-item-bg port-bg5">🏰</div>
+      <div class="port-overlay">
+        <p class="port-overlay-title">CASTLE WARS</p>
+        <p class="port-overlay-desc">Tower defense PvP dengan 40+ unit dan sistem upgrade kastil.</p>
+        <span class="port-overlay-tag">20K+ VISITS</span>
+      </div>
+    </div>
+    <div class="port-item">
+      <div class="port-item-bg port-bg6">🚀</div>
+      <div class="port-overlay">
+        <p class="port-overlay-title">SPACE MINER</p>
+        <p class="port-overlay-desc">Mining game di luar angkasa dengan sistem planet procedural.</p>
+        <span class="port-overlay-tag">12K+ VISITS</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row reveal-stagger">
+    <div class="stat-cell">
+      <span class="stat-num" data-target="90">0</span>
+      <span class="stat-lbl">TOTAL KLIEN</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num" data-target="150">0</span>
+      <span class="stat-lbl">SCRIPTS DIJUAL</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num" data-target="500">0</span>
+      <span class="stat-lbl">JAM DEVELOPMENT</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num" data-target="99">0</span>
+      <span class="stat-lbl">% KEPUASAN</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TESTIMONIALS ===================== -->
+<section class="testi-section">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <p class="section-label">// ULASAN PELANGGAN</p>
+      <h2 class="section-title">KATA <em>MEREKA</em></h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="testi-grid reveal-stagger">
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Fishing Forger Script yang saya beli benar-benar luar biasa. Kodenya bersih, dokumentasinya lengkap, dan supportnya super responsif. Highly recommend!</p>
+        <div class="testi-footer">
+          <div class="testi-avatar">🦊</div>
+          <div>
+            <p class="testi-name">FOXDEV_RBX</p>
+            <p class="testi-role">Roblox Game Developer</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">RPG Map Assets Pack menghemat waktu saya berbulan-bulan. Modelnya detail banget dan performa di game sangat smooth. Worth every penny!</p>
+        <div class="testi-footer">
+          <div class="testi-avatar">🐺</div>
+          <div>
+            <p class="testi-name">WOLFSTUDIO_</p>
+            <p class="testi-role">Roblox Studio Artist</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Combat System Pro terbaik yang pernah saya coba di Roblox. Anti-cheat-nya solid dan combo system-nya terasa premium. Game saya jadi jauh lebih hidup!</p>
+        <div class="testi-footer">
+          <div class="testi-avatar">🦅</div>
+          <div>
+            <p class="testi-name">EAGLE_CODER</p>
+            <p class="testi-role">Roblox Scripter</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRICING ===================== -->
+<section class="pricing-section" id="pricing">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <p class="section-label">// PAKET HARGA</p>
+      <h2 class="section-title">PILIH <em>PAKETMU</em></h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="pricing-grid reveal-stagger">
+      <div class="price-card">
+        <p class="price-plan">STARTER</p>
+        <p class="price-amount">Rp 150K</p>
+        <p class="price-period">per script</p>
+        <ul class="price-items">
+          <li>1 Script pilihan</li>
+          <li>Source code penuh</li>
+          <li>Dokumentasi dasar</li>
+          <li>Support 7 hari</li>
+          <li class="off">Update gratis</li>
+          <li class="off">Custom request</li>
+        </ul>
+        <button class="price-btn" onclick="showToast()">PILIH PAKET</button>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-featured-badge">✦ TERPOPULER</div>
+        <p class="price-plan">DEVELOPER</p>
+        <p class="price-amount">Rp 450K</p>
+        <p class="price-period">3 script bundel</p>
+        <ul class="price-items">
+          <li>3 Script pilihanmu</li>
+          <li>Source code penuh</li>
+          <li>Dokumentasi lengkap</li>
+          <li>Support 30 hari</li>
+          <li>Update gratis 6 bulan</li>
+          <li class="off">Custom request</li>
+        </ul>
+        <button class="price-btn" onclick="showToast()">PILIH PAKET</button>
+      </div>
+
+      <div class="price-card">
+        <p class="price-plan">STUDIO</p>
+        <p class="price-amount">Rp 900K</p>
+        <p class="price-period">semua script</p>
+        <ul class="price-items">
+          <li>Semua script & asset</li>
+          <li>Source code penuh</li>
+          <li>Dokumentasi premium</li>
+          <li>Support lifetime</li>
+          <li>Update gratis selamanya</li>
+          <li>1x Custom request gratis</li>
+        </ul>
+        <button class="price-btn" onclick="showToast()">PILIH PAKET</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA / CONTACT ===================== -->
+<section class="cta-section" id="contact">
+  <div class="section-wrap">
+    <div class="cta-inner reveal">
+      <p class="section-label" style="text-align:center">// HUBUNGI KAMI</p>
+      <h2 class="cta-title">SIAP MEMULAI<br>PROJECT IMPIANMU?</h2>
+      <p class="cta-sub">Hubungi kami melalui Discord atau media sosial di bawah. Tim kami siap membantu 24 jam sehari, 7 hari seminggu.</p>
+      <div class="cta-socials">
+        <a href="#" class="social-btn discord">
+          💬 DISCORD SERVER
+        </a>
+        <a href="#" class="social-btn">
+          🐦 TWITTER / X
+        </a>
+        <a href="mailto:contact@frostxa.dev" class="social-btn">
+          📧 EMAIL KAMI
+        </a>
+      </div>
+      <a href="#products" class="btn-primary">▶ LIHAT SEMUA PRODUK</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="footer-logo">❄ FROSTXA DEV</div>
+  <div class="footer-copy">© 2024 Frostxa Dev. Script dilindungi lisensi.<br>Distribusi ulang tanpa izin dilarang keras.</div>
+  <div class="footer-links-bottom">
+    <a href="#">Syarat</a>
+    <a href="#">Privasi</a>
+    <a href="#">Discord</a>
+  </div>
+</footer>
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+/* ----------- CUSTOM CURSOR ----------- */
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.querySelectorAll('a, button, .p-card, .port-item').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+});
+
+/* ----------- PIXEL STARS ----------- */
+(function(){
+  const canvas = document.getElementById('stars-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  function initStars(){
+    stars = [];
+    for(let i = 0; i < 120; i++){
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() < 0.5 ? 1 : 2,
+        alpha: Math.random(),
+        speed: 0.002 + Math.random() * 0.003,
+        color: Math.random() < 0.3 ? '#ffd700' : '#a8f0ff'
+      });
+    }
+  }
+  function drawStars(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    stars.forEach(s => {
+      s.alpha += s.speed;
+      if(s.alpha > 1){ s.alpha = 0; s.x = Math.random()*canvas.width; s.y = Math.random()*canvas.height; }
+      ctx.globalAlpha = Math.sin(s.alpha * Math.PI) * 0.7;
+      ctx.fillStyle = s.color;
+      ctx.fillRect(Math.round(s.x), Math.round(s.y), s.size, s.size); // pixel-perfect squares
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(drawStars);
+  }
+  resize(); initStars(); drawStars();
+  window.addEventListener('resize', ()=>{ resize(); initStars(); });
+})();
+
+/* ----------- SCROLL REVEAL ----------- */
+const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){ e.target.classList.add('visible'); revealObs.unobserve(e.target); }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => revealObs.observe(el));
+
+/* ----------- COUNTER ANIMATION ----------- */
+function animateCounter(el, target){
+  let current = 0;
+  const step = Math.ceil(target / 60);
+  const interval = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = current + (el.dataset.suffix || '');
+    if(current >= target) clearInterval(interval);
+  }, 24);
+}
+
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      const el = e.target;
+      const target = parseInt(el.dataset.target);
+      animateCounter(el, target);
+      counterObs.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('[data-target]').forEach(el => counterObs.observe(el));
+
+/* ----------- TOAST ----------- */
+function showToast(){
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ----------- SMOOTH SCROLL ----------- */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if(id.length > 1){
+      e.preventDefault();
+      document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+});
+
+/* ----------- NAVBAR ACTIVE STATE ----------- */
+const sections = document.querySelectorAll('section[id]');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if(window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + current ? 'var(--cyan)' : '';
+  });
+}, { passive: true });
+
+/* ----------- CARD TILT ----------- */
+document.querySelectorAll('.p-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top)  / rect.height - 0.5;
+    card.style.transform = `translateY(-6px) rotateX(${-y*6}deg) rotateY(${x*6}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+});
+</script>
+
+</body>
+</html>
